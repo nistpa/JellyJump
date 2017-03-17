@@ -1,16 +1,17 @@
 // Grab canvas element and establish context
 var canvas = document.getElementById('gameCanvas');
 var ctx = canvas.getContext('2d');
+
+// Keypress and gamestate variables
 var keypressed = false;
 var gameOver = false;
 
-// Found a way to optimize the canvas animation performance by pre-rending the frame 
-// onto an existing blank canvas, and then drawing the image of the canvas onto 
-// the main game canvas.
-// I learned about this from here : 
+// I found a way to optimize the canvas animation performance by pre-rending the frame 
+// onto an existing blank canvas, and then drawing the image of the pre-rendered canvas onto 
+// the main game canvas. I learned about this from here : 
 // https://www.html5rocks.com/en/tutorials/canvas/performance/
 var pre_canvas = document.createElement('canvas');
-pre_canvas.width = 600;
+pre_canvas.width = 900;
 pre_canvas.height = 400;
 var pre_context = pre_canvas.getContext('2d');
 
@@ -31,15 +32,15 @@ setInterval(function() {
     rightBumper.xDest = canvas.width - rightBumperWidth();
 }, 750);
 
-// Constructor for the avatar sprite
+// Constructor function for the avatar sprite
 // Learned about drawing sprites on canvas from https://www.youtube.com/watch?v=I3Ik81Ku3lA
-var Sprite = function(filename) {
+var Sprite = function(filename, xCoord, yCoord) {
     this.image = new Image();
     this.image.src = filename;
-    this.xCoord = canvas.width / 2;
-    this.yCoord = canvas.height / 2 - 15;
+    this.xCoord = xCoord;
+    this.yCoord = yCoord;
     this.yVel = 0;
-    this.gravity = 0.3;
+    this.gravity = 0.4;
     // Checks if the avatar is past or under the "ground"
     // If the avatar is past, it sets the yCoord to ground level, and sets yVel to 0
     // If the avatar is above ground (mid jump), it adds the velocity and gravity variables...
@@ -145,7 +146,7 @@ var ball = {
     yCoord: canvas.height / 2 - 10,
     radius: 5,
     color: 'black',
-    xVel: 5,
+    xVel: 8,
     // Function to compute the animation for the ball
     // Computes the directional changes based on which side the projectile...
     // ...bounces off at. Also sets a max value for the xVel of 12.
@@ -154,15 +155,15 @@ var ball = {
         if (ball.xCoord > rightBumper.xCoord || ball.xCoord === rightBumper.xCoord) {
             ball.xCoord = rightBumper.xCoord;
             ball.xVel = Math.floor(ball.xVel * -1);
-            if (Math.abs(ball.xVel) > 10) {
-                ball.xVel = -10;
+            if (Math.abs(ball.xVel) > 25) {
+                ball.xVel = -25;
             }
 
         } else if (ball.xCoord < leftBumper.width || ball.xCoord === leftBumper.width) {
             ball.xCoord = leftBumper.width;
             ball.xVel = Math.floor(ball.xVel * -1);
-            if (Math.abs(ball.xVel) > 10) {
-                ball.xVel = 10;
+            if (Math.abs(ball.xVel) > 25) {
+                ball.xVel = 25;
             }
         }
 
@@ -188,16 +189,15 @@ var score = {
             ball.xVel *= 1.05;
         } else if (ball.xCoord + ball.radius > image.xCoord && ball.xCoord + ball.radius < image.xCoord + image.image.width + ball.radius && image.yCoord > canvas.height / 2 - 30) {
             ball.xCoord = 60;
-            if(score.count > score.highScore) {
-                score.highScore = score.count;   
+            if (score.count > score.highScore) {
+                score.highScore = score.count;
                 score.getHighScore = true;
             }
             leftBumper.width = 50;
             rightBumper.width = 50;
-            rightBumper.xCoord = canvas.width - 25; 
+            rightBumper.xCoord = canvas.width - 25;
             ball.xVel = 5;
             gameOver = true;
-
 
         }
 
@@ -205,7 +205,7 @@ var score = {
 };
 
 //  Creates the canvas shapes / sprites
-function createObj(obj, isCircle, isText, isImg) {
+function createObj(obj, isCircle, isText) {
     if (isCircle) {
         pre_context.fillStyle = obj.color;
         pre_context.beginPath();
@@ -233,19 +233,19 @@ drawAll = function() {
     createObj(score, false, true, false);
 };
 
+// Function to update the positions of all the objects drawn on the pre-rendered canvas
 updateAll = function() {
-        // Calls the function to compute jump
-        image.update();
-        // Calls the functions for the wall AI
-        // Updating the xCoord and width of the left and right bumper objects
-        leftBumper.update();
-        rightBumper.update();
-        // Calls the function for the ball animation
-        ball.update();
-        // Calls the function for the players score
-        score.update(); 
+    // Calls the function to compute jump
+    image.update();
+    // Calls the functions for the wall AI
+    // Updating the xCoord and width of the left and right bumper objects
+    leftBumper.update();
+    rightBumper.update();
+    // Calls the function for the ball animation
+    ball.update();
+    // Calls the function for the players score
+    score.update();
 }
-window.setInterval(updateAll,50);
 
 // sets RequestAnimationFrame for each browser to a variable
 // uses setInterval as a backup
@@ -258,23 +258,23 @@ var requestAnimation = window.requestAnimationFrame ||
 
 // Loading in the image
 var AVATAR = "avatar.png";
-var image = new Sprite(AVATAR);
+var image = new Sprite(AVATAR,canvas.width / 2, canvas.height / 2 - 15);
 
 
 // Animates the movement on the canvas
 function animate() {
     // Clears the canvas each frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if(gameOver) {
+    if (gameOver) {
         ctx.font = "20px Verdana";
         ctx.fillStyle = "black";
-        if(score.getHighScore){
-           ctx.fillText("You set a new highscore with a score of " + score.count, canvas.width/2 - 200, canvas.height/4);       
+        if (score.getHighScore) {
+            ctx.fillText("You set a new highscore with a score of " + score.count, canvas.width / 2 - 200, canvas.height / 4);
         } else {
-            ctx.fillText("Your score was " + score.count, canvas.width/2 - 60, canvas.height/4);       
+            ctx.fillText("Your score was " + score.count, canvas.width / 2 - 60, canvas.height / 4);
         }
-        ctx.fillText("Press spacebar to play again" , canvas.width/2 - 125, canvas.height/4 + 50);  
-        
+        ctx.fillText("Press spacebar to play again", canvas.width / 2 - 125, canvas.height / 4 + 50);
+
     } else {
         // Draws everything each frame
         drawAll();
@@ -282,21 +282,20 @@ function animate() {
         pre_context.clearRect(0, 0, pre_canvas.width, pre_canvas.height);
         // Checks if the avatar is mid jump ,Checks if the jump key was pressed
         // If true, increases the yVel of the avatar effectively jumping
-        // Sets yVel to -10 to initiate the jump
+        // Sets yVel to -8 to initiate the jump
         // Sets keypressed to false because we only want to jump once
         if (keypressed && image.yCoord === canvas.height / 2 - 15) {
-            image.yVel = -10;
+            image.yVel = -8;
             keypressed = false;
         }
         // Calls function to update all positions for movements
         updateAll();
-   }
-   
+    }
+
 
     requestAnimation(animate);
 }
 animate();
-
 
 // Event listener to call when spacebar or up-arrow keys are pressed
 document.addEventListener("keydown", function(e) {
@@ -304,8 +303,7 @@ document.addEventListener("keydown", function(e) {
         // Checks the height to avoid jump firing while mid jump
         if (image.yCoord > canvas.height / 2 - 50) {
             keypressed = true;
-            updateAll();
-            if(gameOver){
+            if (gameOver) {
                 gameOver = false;
                 score.count = 0;
                 score.getHighScore = false;
