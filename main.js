@@ -40,7 +40,7 @@ var Sprite = function(filename, xCoord, yCoord) {
     this.xCoord = xCoord;
     this.yCoord = yCoord;
     this.yVel = 0;
-    this.gravity = 0.4;
+    this.gravity = 0.25;
     // Checks if the avatar is past or under the "ground"
     // If the avatar is past, it sets the yCoord to ground level, and sets yVel to 0
     // If the avatar is above ground (mid jump), it adds the velocity and gravity variables...
@@ -146,7 +146,7 @@ var ball = {
     yCoord: canvas.height / 2 - 10,
     radius: 5,
     color: 'black',
-    xVel: 8,
+    xVel: 3,
     // Function to compute the animation for the ball
     // Computes the directional changes based on which side the projectile...
     // ...bounces off at. Also sets a max value for the xVel of 12.
@@ -196,7 +196,7 @@ var score = {
             leftBumper.width = 50;
             rightBumper.width = 50;
             rightBumper.xCoord = canvas.width - 25;
-            ball.xVel = 5;
+            ball.xVel = 3;
             gameOver = true;
 
         }
@@ -262,7 +262,7 @@ var image = new Sprite(AVATAR,canvas.width / 2, canvas.height / 2 - 15);
 
 
 // Animates the movement on the canvas
-function animate() {
+setInterval(animate =  function() {
     // Clears the canvas each frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (gameOver) {
@@ -293,8 +293,8 @@ function animate() {
     }
 
 
-    requestAnimation(animate);
-}
+    //requestAnimation(animate);
+}, 10)
 animate();
 
 // Event listener to call when spacebar or up-arrow keys are pressed
