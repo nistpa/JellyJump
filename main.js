@@ -1,40 +1,34 @@
 // Grab canvas element and establish context
-var canvas = document.getElementById('gameCanvas');
-var ctx = canvas.getContext('2d');
+let canvas = document.getElementById('gameCanvas');
+let ctx = canvas.getContext('2d');
 
-// Keypress and gamestate variables
-var keypressed = false;
-var gameOver = false;
+// Keypress and gamestate letiables
+let keypressed = false;
+let gameOver = false;
 
 // I found a way to optimize the canvas animation performance by pre-rending the frame 
 // onto an existing blank canvas, and then drawing the image of the pre-rendered canvas onto 
 // the main game canvas. I learned about this from here : 
 // https://www.html5rocks.com/en/tutorials/canvas/performance/
-var pre_canvas = document.createElement('canvas');
+let pre_canvas = document.createElement('canvas');
 pre_canvas.width = 900;
 pre_canvas.height = 400;
-var pre_context = pre_canvas.getContext('2d');
+let pre_context = pre_canvas.getContext('2d');
 
 // Computes the destination for the left bumper to travel to
-leftBumperWidth = function() {
-    return (Math.floor(Math.random() * 300));
-};
 // Computes the destination for the right bumper to travel to
-rightBumperWidth = function() {
-    return (Math.floor(Math.random() * 300));
-};
+// Arrow functions are so cool!
+let leftBumperWidth = () => Math.floor(Math.random() * 300);
+let rightBumperWidth = () => Math.floor(Math.random() * 300);
+
 // Assigns a new left bumper destination value every 1 second
-setInterval(function() {
-    leftBumper.xDest = leftBumperWidth();
-}, 750);
+setInterval(function() { leftBumper.xDest = leftBumperWidth(); }, 750);
 // Assigns a new right bummper destination value every 1 second
-setInterval(function() {
-    rightBumper.xDest = canvas.width - rightBumperWidth();
-}, 750);
+setInterval(function() { rightBumper.xDest = canvas.width - rightBumperWidth(); }, 750);
 
 // Constructor function for the avatar sprite
 // Learned about drawing sprites on canvas from https://www.youtube.com/watch?v=I3Ik81Ku3lA
-var Sprite = function(filename, xCoord, yCoord) {
+let Sprite = function(filename, xCoord, yCoord) {
     this.image = new Image();
     this.image.src = filename;
     this.xCoord = xCoord;
@@ -64,7 +58,7 @@ var Sprite = function(filename, xCoord, yCoord) {
 };
 
 // Object for the ground
-var ground = {
+let ground = {
     xCoord: 0,
     yCoord: canvas.height / 2,
     width: canvas.width,
@@ -73,7 +67,7 @@ var ground = {
 };
 
 // Object for left bumper
-var leftBumper = {
+let leftBumper = {
     xCoord: 0,
     yCoord: 0,
     width: 50,
@@ -105,7 +99,7 @@ var leftBumper = {
 };
 
 // Object for right bumper
-var rightBumper = {
+let rightBumper = {
     xCoord: canvas.width - 25,
     yCoord: 0,
     width: 50,
@@ -141,7 +135,7 @@ var rightBumper = {
 };
 
 // Object for the ball projectile
-var ball = {
+let ball = {
     xCoord: 60,
     yCoord: canvas.height / 2 - 10,
     radius: 5,
@@ -172,7 +166,7 @@ var ball = {
 };
 
 // Object for the score
-var score = {
+let score = {
     count: 0,
     font: "30px Veranda",
     color: "white",
@@ -226,11 +220,11 @@ function createObj(obj, isCircle, isText) {
 // Calls createObj to create canvas objects
 drawAll = function() {
     image.draw(15, 15);
-    createObj(ground, false, false, false);
-    createObj(rightBumper, false, false, false);
-    createObj(leftBumper, false, false, false);
-    createObj(ball, true, false, false);
-    createObj(score, false, true, false);
+    createObj(ground, false, false);
+    createObj(rightBumper, false, false);
+    createObj(leftBumper, false, false);
+    createObj(ball, true, false);
+    createObj(score, false, true);
 };
 
 // Function to update the positions of all the objects drawn on the pre-rendered canvas
@@ -247,19 +241,9 @@ updateAll = function() {
     score.update();
 }
 
-// sets RequestAnimationFrame for each browser to a variable
-// uses setInterval as a backup
-// For those unfamiliar https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
-// Helps with optimization and smoother animations
-var requestAnimation = window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    setInterval;
-
 // Loading in the image
-var AVATAR = "avatar.png";
-var image = new Sprite(AVATAR,canvas.width / 2, canvas.height / 2 - 15);
-
+let AVATAR = "avatar.png";
+let image = new Sprite(AVATAR,canvas.width / 2, canvas.height / 2 - 15);
 
 // Animates the movement on the canvas
 setInterval(animate =  function() {
@@ -292,8 +276,6 @@ setInterval(animate =  function() {
         updateAll();
     }
 
-
-    //requestAnimation(animate);
 }, 10)
 animate();
 
